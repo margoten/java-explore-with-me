@@ -18,13 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 public class EndpointHitClient extends BaseClient {
-    private static final String API_PREFIX = "/hit";
 
     @Autowired
     public EndpointHitClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                         .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
@@ -41,11 +40,11 @@ public class EndpointHitClient extends BaseClient {
                 "uris", uris,
                 "unique", unique
         );
-        return get("/hits?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return get("/stats/?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 
     @PostMapping()
     public ResponseEntity<Object> createEndpointHit(@RequestBody EndpointHitDto endpointHitDto) {
-        return post("", endpointHitDto);
+        return post("/hit", endpointHitDto);
     }
 }
