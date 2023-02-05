@@ -11,12 +11,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hit")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class EndpointHitController {
     private final EndpointHitService endpointHitService;
 
-    @GetMapping()
+    @GetMapping("/hit")
     public List<ViewStatsDto> getEndpointHits(@RequestParam LocalDateTime start,
                                               @RequestParam() LocalDateTime end,
                                               @RequestParam(required = false) List<String> uris,
@@ -24,7 +23,7 @@ public class EndpointHitController {
         return endpointHitService.getEndpointHits(start, end, uris, unique);
     }
 
-    @PostMapping()
+    @PostMapping("/stats")
     public EndpointHitDto createEndpointHit(@RequestBody EndpointHitDto endpointHitDto) {
         return endpointHitService.createEndpointHit(endpointHitDto);
     }

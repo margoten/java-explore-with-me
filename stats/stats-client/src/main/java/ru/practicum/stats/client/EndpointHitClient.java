@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class EndpointHitClient extends BaseClient {
-    private static final String API_PREFIX = "/hits";
+    private static final String API_PREFIX = "/hit";
 
     @Autowired
     public EndpointHitClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
