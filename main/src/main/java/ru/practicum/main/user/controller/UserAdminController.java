@@ -1,17 +1,12 @@
-package ru.practicum.main.user.controller.admin;
+package ru.practicum.main.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main.compilations.dto.CompilationDto;
-import ru.practicum.main.compilations.dto.NewCompilationDto;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.service.UserService;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController

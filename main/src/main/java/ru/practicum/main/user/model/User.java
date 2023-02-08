@@ -21,5 +21,4 @@ public class User {
     private String email;
     @Column(name = "name", nullable = false, length = 128)
     private String name;
-
 }

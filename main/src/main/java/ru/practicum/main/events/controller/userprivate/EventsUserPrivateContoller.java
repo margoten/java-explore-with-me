@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.events.dto.EventFullDto;
-import ru.practicum.main.events.dto.EventShortDto;
 import ru.practicum.main.events.dto.NewEventDto;
 import ru.practicum.main.events.dto.UpdateEventUserRequestDto;
 import ru.practicum.main.events.service.EventsService;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.RequestDto;
+import ru.practicum.main.request.service.RequestService;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @RequestMapping("/users/{userId}/events")
 public class EventsUserPrivateContoller {
     private final EventsService eventsService;
+    private final RequestService requestService;
 
     @PostMapping()
     public EventFullDto createEvent(@PathVariable Long userId,
@@ -23,10 +26,10 @@ public class EventsUserPrivateContoller {
         return eventsService.createEvent(userId, eventDto);
     }
 
-    @GetMapping("/{eventId}")
+    @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable() Long userId,
-                                 @PathVariable() Long eventId,
-                                 @RequestParam() UpdateEventUserRequestDto eventDto) {
+                                    @PathVariable() Long eventId,
+                                    @RequestParam() UpdateEventUserRequestDto eventDto) {
         return eventsService.updateEventByInitiator(userId, eventId, eventDto);
     }
 
@@ -43,5 +46,17 @@ public class EventsUserPrivateContoller {
         return eventsService.getUserEvents(userId, from, size);
     }
 
+    @GetMapping("/{eventId}/requests")
+    public List<RequestDto> getUserEventRequests(@PathVariable() Long userId,
+                                                 @PathVariable() Long eventId) {
+        return requestService.getUserEventRequests(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public RequestDto updateUserEventRequest(@PathVariable() Long userId,
+                                             @PathVariable() Long eventId,
+                                             @RequestParam() EventRequestStatusUpdateRequest request) {
+        return requestService.updateUserEventRequest(userId, eventId, request);
+    }
 
 }
