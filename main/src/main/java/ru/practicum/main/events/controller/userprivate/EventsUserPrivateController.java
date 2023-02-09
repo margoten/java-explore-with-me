@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping("/users/{userId}/events")
-public class EventsUserPrivateContoller {
+public class EventsUserPrivateController {
     private final EventsService eventsService;
     private final RequestService requestService;
 
@@ -29,13 +29,14 @@ public class EventsUserPrivateContoller {
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable() Long userId,
                                     @PathVariable() Long eventId,
-                                    @RequestParam() UpdateEventUserRequestDto eventDto) {
+                                    @RequestBody() UpdateEventUserRequestDto eventDto) {
         return eventsService.updateEventByInitiator(userId, eventId, eventDto);
     }
 
 
-    @PatchMapping("/{eventId}")
-    public EventFullDto getEvent(@PathVariable() Long userId, @PathVariable() Long eventId) {
+    @GetMapping("/{eventId}")
+    public EventFullDto getEvent(@PathVariable() Long userId,
+                                 @PathVariable() Long eventId) {
         return eventsService.getEvent(userId, eventId);
     }
 

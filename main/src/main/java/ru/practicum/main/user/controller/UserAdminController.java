@@ -2,6 +2,7 @@ package ru.practicum.main.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.service.UserService;
@@ -16,7 +17,8 @@ public class UserAdminController {
     private final UserService userservice;
 
     @PostMapping
-    public UserDto createUser(@RequestParam() UserDto userDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto createUser(@RequestBody UserDto userDto) {
         return userservice.createUser(userDto);
     }
 
@@ -28,6 +30,7 @@ public class UserAdminController {
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@NotNull @PathVariable() long userId) {
         userservice.deleteUser(userId);
     }

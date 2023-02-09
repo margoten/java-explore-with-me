@@ -12,7 +12,7 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Intege
     @Query(value = ""
             + "SELECT NEW ru.practicum.stats.server.hit.model.ViewStats(hit.uri, hit.app, COUNT(DISTINCT hit.ip)) "
             + "FROM EndpointHit hit "
-            + "WHERE hit.uri IN ?3 AND hit.timestamp BETWEEN ?1 AND ?2 "
+            + "WHERE case hit.uri when hit.uri IN ?3 AND hit.timestamp BETWEEN ?1 AND ?2 "
             + "GROUP BY hit.uri, hit.app "
             + "ORDER BY COUNT(DISTINCT hit.ip) DESC")
     List<ViewStats> getDistinctEndpointHits(LocalDateTime start, LocalDateTime end, List<String> uri);

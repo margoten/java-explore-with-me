@@ -2,6 +2,7 @@ package ru.practicum.main.request.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.request.dto.RequestDto;
 import ru.practicum.main.request.service.RequestService;
@@ -16,12 +17,12 @@ public class RequestController {
     private final RequestService requestService;
 
     @GetMapping
-    public List<RequestDto> getUserRequests(@NotNull @PathVariable() Long userId) {
-
+    public List<RequestDto> getUserRequests(@PathVariable() Long userId) {
         return requestService.requestService(userId);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public RequestDto createRequests(@NotNull @PathVariable() Long userId,
                                      @NotNull @RequestParam() Long eventId) {
 

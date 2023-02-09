@@ -131,8 +131,9 @@ public class EventsServiceImpl implements EventsService {
                                                int from,
                                                int size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
-        var eventStates = states.stream().map(Event.EventState::valueOf)
-                .collect(Collectors.toList());
+        var eventStates = states.isEmpty()
+                ? List.of(Event.EventState.values())
+                : states.stream().map(Event.EventState::valueOf).collect(Collectors.toList());
         return eventRepository.findAllByInitiator_IdInAndState_InAndCategory_IdInAndEventDateBetween(users, eventStates, categories, rangeStart, rangeEnd, pageRequest)
                 .stream()
                 .map(EventMapper::toEventFullDto)

@@ -7,7 +7,6 @@ import ru.practicum.main.events.model.Event;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
