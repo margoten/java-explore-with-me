@@ -1,14 +1,12 @@
 package ru.practicum.main.user.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class UserShotDto {
-    private long id;
+    private Long id;
     private String name;
 }

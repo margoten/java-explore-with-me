@@ -38,7 +38,7 @@ public class Event {
     private LocalDateTime eventDate;
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
-    @Column(name = "published", nullable = false)
+    @Column(name = "published")
     private LocalDateTime published;
     @Column(name = "lat", nullable = false)
     private float lat;

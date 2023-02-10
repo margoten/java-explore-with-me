@@ -3,6 +3,7 @@ package ru.practicum.main.events.controller.userprivate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.events.dto.EventFullDto;
 import ru.practicum.main.events.dto.NewEventDto;
@@ -22,6 +23,7 @@ public class EventsUserPrivateController {
     private final RequestService requestService;
 
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable Long userId,
                                     @RequestBody() NewEventDto eventDto) {
         return eventsService.createEvent(userId, eventDto);

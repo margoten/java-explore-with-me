@@ -153,9 +153,9 @@ public class EventsServiceImpl implements EventsService {
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto eventDto) {
         LocalDateTime current = LocalDateTime.now();
-//        if (eventDto.getEventDate().minusHours(2).isBefore(current)) {
-//            throw new ValidationException("Invalid event date for event " + eventDto.getTitle());
-//        }
+        if (eventDto.getEventDate().minusHours(2).isBefore(current)) {
+            throw new ValidationException("Invalid event date for event " + eventDto.getTitle());
+        }
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("User with id=" + userId + " was not found");
