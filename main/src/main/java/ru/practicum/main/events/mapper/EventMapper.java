@@ -46,7 +46,7 @@ public class EventMapper {
                 .annotation(newEventDto.getAnnotation())
                 .description(newEventDto.getDescription())
                 .title(newEventDto.getTitle())
-                .eventDate(newEventDto.getEventDate())
+//                .eventDate(newEventDto.getEventDate())
                 .lat(newEventDto.getLocation().getLat())
                 .lon(newEventDto.getLocation().getLon())
                 .paid(newEventDto.getPaid())

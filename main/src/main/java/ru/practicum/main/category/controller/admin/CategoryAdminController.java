@@ -8,6 +8,9 @@ import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.service.CategoryService;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping("/admin/categories")
@@ -21,7 +24,7 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{catId}")
-    public CategoryDto getCompilation(@PathVariable() long catId,
+    public CategoryDto updateCategory(@PathVariable() long catId,
                                       @RequestBody() NewCategoryDto categoryDto) {
         return categoryService.updateCategory(catId, categoryDto);
     }

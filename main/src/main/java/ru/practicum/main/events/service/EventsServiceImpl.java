@@ -15,6 +15,7 @@ import ru.practicum.main.events.repository.EventRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -152,9 +153,9 @@ public class EventsServiceImpl implements EventsService {
     @Override
     public EventFullDto createEvent(Long userId, NewEventDto eventDto) {
         LocalDateTime current = LocalDateTime.now();
-        if (eventDto.getEventDate().minusHours(2).isBefore(current)) {
-            throw new ValidationException("Invalid event date for event " + eventDto.getTitle());
-        }
+//        if (eventDto.getEventDate().minusHours(2).isBefore(current)) {
+//            throw new ValidationException("Invalid event date for event " + eventDto.getTitle());
+//        }
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("User with id=" + userId + " was not found");

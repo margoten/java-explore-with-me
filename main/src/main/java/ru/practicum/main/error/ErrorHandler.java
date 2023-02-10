@@ -48,6 +48,37 @@ public class ErrorHandler {
                 HttpStatus.BAD_REQUEST.name(),
                 LocalDateTime.now());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handle(final ConflictException e) {
+
+        return new ApiError(e.getMessage(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                HttpStatus.CONFLICT.name(),
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handle(final ValidationException e) {
+        return new ApiError(e.getMessage(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                HttpStatus.BAD_REQUEST.name(),
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handle(final NotFoundException e) {
+
+        return new ApiError(e.getMessage(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                HttpStatus.NOT_FOUND.name(),
+                LocalDateTime.now());
+    }
+
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handle(final Throwable e) {

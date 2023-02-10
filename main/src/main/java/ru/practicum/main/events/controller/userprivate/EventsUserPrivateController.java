@@ -2,6 +2,7 @@ package ru.practicum.main.events.controller.userprivate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.events.dto.EventFullDto;
 import ru.practicum.main.events.dto.NewEventDto;
@@ -22,7 +23,7 @@ public class EventsUserPrivateController {
 
     @PostMapping()
     public EventFullDto createEvent(@PathVariable Long userId,
-                                    @RequestParam() NewEventDto eventDto) {
+                                    @RequestBody() NewEventDto eventDto) {
         return eventsService.createEvent(userId, eventDto);
     }
 
@@ -56,7 +57,7 @@ public class EventsUserPrivateController {
     @PatchMapping("/{eventId}/requests")
     public RequestDto updateUserEventRequest(@PathVariable() Long userId,
                                              @PathVariable() Long eventId,
-                                             @RequestParam() EventRequestStatusUpdateRequest request) {
+                                             @RequestBody() EventRequestStatusUpdateRequest request) {
         return requestService.updateUserEventRequest(userId, eventId, request);
     }
 
