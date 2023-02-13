@@ -1,5 +1,6 @@
 package ru.practicum.main.events.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -11,11 +12,11 @@ import ru.practicum.main.error.ValidationException;
 import ru.practicum.main.events.dto.*;
 import ru.practicum.main.events.mapper.EventMapper;
 import ru.practicum.main.events.model.Event;
+import ru.practicum.main.events.model.QEvent;
 import ru.practicum.main.events.repository.EventRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class EventsServiceImpl implements EventsService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+
 
     @Override
     public List<EventShortDto> getEventsByAdmin(String text,
@@ -135,7 +137,25 @@ public class EventsServiceImpl implements EventsService {
         var eventStates = states.isEmpty()
                 ? List.of(Event.EventState.values())
                 : states.stream().map(Event.EventState::valueOf).collect(Collectors.toList());
-        return eventRepository.findAllByInitiator_IdInAndState_InAndCategory_IdInAndEventDateBetween(users, eventStates, categories, rangeStart, rangeEnd, pageRequest)
+        QEvent event = QEvent.event;
+        BooleanExpression initiatorEvents = event.initiator.id.in(users);
+        BooleanExpression statesEvents = event.state.in(eventStates);
+        BooleanExpression categoryEvents = event.category.id.in(categories);
+        BooleanExpression rangeEvents = event.eventDate.between(rangeStart, rangeEnd);
+        BooleanExpression res = event.isNotNull();
+        if (!users.isEmpty()) {
+            res = initiatorEvents;
+        }
+        if (!states.isEmpty()) {
+            res = res.and(statesEvents);
+        }
+        if (!categories.isEmpty()) {
+            res = res.and(categoryEvents);
+        }
+        if (rangeStart != null && rangeEnd != null) {
+            res = res.and(rangeEvents);
+        }
+        return eventRepository.findAll(res, pageRequest)
                 .stream()
                 .map(EventMapper::toEventFullDto)
                 .collect(Collectors.toList());
