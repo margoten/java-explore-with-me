@@ -20,17 +20,17 @@ public class EventsController {
     private final EventsService eventsService;
 
     @GetMapping
-    public List<EventShortDto> getEvents(@NotNull @RequestParam() String text,
-                                         @UniqueElements @RequestParam() List<Integer> categories,
-                                         @NotNull @RequestParam() Boolean paid,
-                                         @NotNull @RequestParam() @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                         @NotNull @RequestParam() @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+    public List<EventShortDto> getEvents(@RequestParam(defaultValue = "") String text,
+                                         @RequestParam(defaultValue = "") List<Long> categories,
+                                         @RequestParam(required = false) Boolean paid,
+                                         @RequestParam(defaultValue = "") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                         @RequestParam(defaultValue = "") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") boolean onlyAvailable,
-                                         @NotNull @RequestParam() String sort,
+                                         @RequestParam(required = false) String sort,
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size) {
 
-        return eventsService.getEventsByAdmin(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return eventsService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{id}")

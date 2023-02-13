@@ -16,6 +16,7 @@ import ru.practicum.main.events.model.QEvent;
 import ru.practicum.main.events.repository.EventRepository;
 import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.repository.UserRepository;
+import ru.practicum.stats.client.EndpointHitClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,19 +28,44 @@ public class EventsServiceImpl implements EventsService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final EndpointHitClient hitClient;
 
 
     @Override
-    public List<EventShortDto> getEventsByAdmin(String text,
-                                                List<Integer> categories,
-                                                Boolean paid,
-                                                LocalDateTime rangeStart,
-                                                LocalDateTime rangeEnd,
-                                                boolean onlyAvailable,
-                                                String sort,
-                                                int from,
-                                                int size) {
-        return null;
+    public List<EventShortDto> getEvents(String text,
+                                         List<Long> categories,
+                                         Boolean paid,
+                                         LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd,
+                                         boolean onlyAvailable,
+                                         String sort,
+                                         int from,
+                                         int size) {
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        QEvent event = QEvent.event;
+        BooleanExpression textEvents = event.title.toUpperCase().contains(text)
+                .or(event.annotation.toUpperCase().contains(text))
+                .or(event.description.toUpperCase().contains(text));
+        BooleanExpression categoryEvents = event.category.id.in(categories);
+        BooleanExpression rangeEvents = rangeStart != null && rangeEnd != null
+                ? event.eventDate.between(rangeStart, rangeEnd)
+                : event.eventDate.after(LocalDateTime.now());
+        BooleanExpression paidEvents = event.paid.eq(paid);
+        BooleanExpression res = rangeEvents;
+        if (!text.isEmpty()) {
+            res = textEvents;
+        }
+        if (!categories.isEmpty()) {
+            res = res.and(categoryEvents);
+        }
+        if (paid != null) {
+            res = res.and(paidEvents);
+        }
+
+        return eventRepository.findAll(res, pageRequest)
+                .stream()
+                .map(EventMapper::toEventShotDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -55,7 +81,7 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto getEvent(long initiatorId, long eventId) {
         Event event = eventRepository.findEventByInitiator_IdAndIdIs(initiatorId, eventId);
         if (event == null) {
-            throw new NotFoundException("Event with id=" + eventId + " was not found for User with id = " + initiatorId);
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
         return EventMapper.toEventFullDto(event);
     }
@@ -80,7 +106,7 @@ public class EventsServiceImpl implements EventsService {
 
         if (eventRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateAction.PUBLISH_EVENT) {
             if (event.getState() != Event.EventState.PENDING) {
-                throw new ValidationException("Event with id=" + eventId + " cannot be published");
+                throw new ValidationException("Cannot publish the event because it's not in the right state: " +  event.getState());
             }
             LocalDateTime published = LocalDateTime.now();
             if (published.minusHours(1).isBefore(event.getEventDate())) {
@@ -126,13 +152,13 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    public List<EventFullDto> getEventsByAdmin(List<Long> users,
-                                               List<String> states,
-                                               List<Long> categories,
-                                               LocalDateTime rangeStart,
-                                               LocalDateTime rangeEnd,
-                                               int from,
-                                               int size) {
+    public List<EventFullDto> getEvents(List<Long> users,
+                                        List<String> states,
+                                        List<Long> categories,
+                                        LocalDateTime rangeStart,
+                                        LocalDateTime rangeEnd,
+                                        int from,
+                                        int size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
         var eventStates = states.isEmpty()
                 ? List.of(Event.EventState.values())
