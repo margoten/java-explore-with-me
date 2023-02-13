@@ -10,6 +10,7 @@ import ru.practicum.main.events.dto.NewEventDto;
 import ru.practicum.main.events.dto.UpdateEventUserRequestDto;
 import ru.practicum.main.events.service.EventsService;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.RequestDto;
 import ru.practicum.main.request.service.RequestService;
 
@@ -57,9 +58,9 @@ public class EventsUserPrivateController {
     }
 
     @PatchMapping("/{eventId}/requests")
-    public RequestDto updateUserEventRequest(@PathVariable() Long userId,
-                                             @PathVariable() Long eventId,
-                                             @RequestBody() EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult updateUserEventRequest(@PathVariable() Long userId,
+                                                                 @PathVariable() Long eventId,
+                                                                 @RequestBody() EventRequestStatusUpdateRequest request) {
         return requestService.updateUserEventRequest(userId, eventId, request);
     }
 

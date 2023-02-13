@@ -3,11 +3,13 @@ package ru.practicum.main.request.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.error.ConflictException;
 import ru.practicum.main.error.NotFoundException;
 import ru.practicum.main.error.ValidationException;
 import ru.practicum.main.events.model.Event;
 import ru.practicum.main.events.repository.EventRepository;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.RequestDto;
 import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.model.Request;
@@ -28,6 +30,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestDto> requestService(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User with id=" + userId + " was not found");
+        }
         return requestRepository.findAllByRequester_IdIs(userId)
                 .stream()
                 .map(RequestMapper::toRequestDto)
@@ -49,11 +54,11 @@ public class RequestServiceImpl implements RequestService {
 
         List<Request> requests = requestRepository.findAllByEvent_IdIs(eventId);
         if (requests.stream().anyMatch(r -> r.getRequester().getId().equals(userId))) {
-            throw new ValidationException("User with id=" + userId + " already sent request for event with id " + eventId);
+            throw new ConflictException("User with id=" + userId + " already sent request for event with id " + eventId);
         }
 
         if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requests.size()) {
-            throw new ValidationException("User with id=" + userId + " cannot create request for unpublished event whit id " + eventId);
+            throw new ValidationException("User with id=" + userId + " cannot create request for event whit id " + eventId);
         }
 
         User requester = userRepository.findById(userId)
@@ -72,7 +77,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestDto cancelRequest(Long userId, Long requestId) {
-        Request request = requestRepository.findAllByEvent_IdIsAndRequester_IdIs(userId, requestId)
+        Request request = requestRepository.findRequestByEvent_IdIsAndIdIs(requestId, userId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("Request with id=" + requestId + " was not found");
                 });
@@ -90,16 +95,37 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDto updateUserEventRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult updateUserEventRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("Event with id=" + eventId + " was not found");
                 });
 
-        List<Request> requests = requestRepository.findAllByEvent_IdIsAndIdIn(eventId, request.getRequestIds());
-        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requests.size()) {
+        Integer confirmedRequestCount = requestRepository.countRequestByEvent_IdIsAndStatusIs(eventId, Request.RequestStatus.CONFIRMED);
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit().equals(confirmedRequestCount)) {
             throw new ValidationException("User with id=" + userId + " cannot create request for unpublished event whit id " + eventId);
         }
-        return null;
+
+        List<Request> requests = requestRepository.findAllByEvent_IdIsAndIdIn(eventId, request.getRequestIds());
+        if (requests.stream().anyMatch(req -> !req.getStatus().equals(Request.RequestStatus.PENDING))) {
+            throw new ValidationException("Request must have status PENDING");
+        }
+
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit().equals(confirmedRequestCount)) {
+            throw new ValidationException("User with id=" + userId + " cannot create request for unpublished event whit id " + eventId);
+        }
+        final Integer[] count = {confirmedRequestCount};
+        requests.forEach(req -> {
+            if (request.getStatus().equals(Request.RequestStatus.CONFIRMED.name())
+                    && event.getParticipantLimit() < count[0]) {
+                req.setStatus(Request.RequestStatus.CONFIRMED);
+            } else if (request.getStatus().equals(Request.RequestStatus.CANCELED.name())
+                    || event.getParticipantLimit() >= count[0]) {
+                req.setStatus(Request.RequestStatus.CANCELED);
+            }
+            ++count[0];
+        });
+
+        return RequestMapper.toRequestStatusUpdateResultDto(requestRepository.saveAll(requests));
     }
 }
